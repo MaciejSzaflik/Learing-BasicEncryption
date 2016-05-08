@@ -19,10 +19,10 @@ public class Utils {
 			for(int i = 0;i<desiredLen -bitSet.length();i++)
 				sb.append("0");
 		}
-		return sb.toString();
+		return sb.toString().trim();
 		
 	}
-	public static void printBists(BitSet bitSet,int split)
+	public static void printBits(BitSet bitSet,int split)
 	{
 		System.out.println(bistToString(bitSet,split,0));
 	}
