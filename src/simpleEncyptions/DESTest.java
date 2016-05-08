@@ -27,6 +27,8 @@ public class DESTest {
 		"110010 110011 110110 001011 000011 100001 011111 110101",
 		};
 	
+	public static final String ipMessage = "1100 1100 0000 0000 1100 1100 1111 1111 1111 0000 1010 1010 1111 0000 1010 1010";
+	
 	@Test
 	public void testCreateKey()
 	{
@@ -36,5 +38,20 @@ public class DESTest {
 		{
 			assertEquals(testKeys[i], Utils.bistToString(toTest[i+1], 6, 48));
 		}
+	}
+	
+	@Test
+	public void testIpMessage()
+	{
+		DES des = new DES();
+		BitSet toTest = des.ipMessageBlock("0123456789ABCDEF");
+		assertEquals(ipMessage, Utils.bistToString(toTest, 4, 64));
+	}
+	
+	@Test
+	public void testEncryptBlock()
+	{
+		//DES des = new DES();
+		//BitSet toTest = des.encryptBlockMessage("0123456789ABCDEF");
 	}
 }
