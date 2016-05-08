@@ -35,7 +35,7 @@ public class DESTest {
 		BitSet[] toTest = des.CreateKey();
 		for(int i = 0;i<toTest.length;i++)
 		{
-			assertEquals(testKeys[i], Utils.bistToString(toTest[i],30));
+			assertEquals(testKeys[i], Utils.bistToString(toTest[i],30,28));
 		}
 	}
 }

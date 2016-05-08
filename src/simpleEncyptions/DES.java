@@ -40,8 +40,8 @@ public class DES implements Encryption{
 		
 		for(int i = 1;i<cnKeys.length;i++)
 		{
-			cnKeys[i] = leftShiftBitSet(cnKeys[i-1],getNumberOfShifts(i));
-			dnKeys[i] = leftShiftBitSet(dnKeys[i-1],getNumberOfShifts(i));
+			cnKeys[i] = leftShiftBitSet(cnKeys[i-1],getNumberOfShifts(i),28);
+			dnKeys[i] = leftShiftBitSet(dnKeys[i-1],getNumberOfShifts(i),28);
 		}
 		return cnKeys;
 	}
@@ -86,14 +86,14 @@ public class DES implements Encryption{
 	}
 	
 	
-	
 	private BitSet getBitSet(String hexbinary)
 	{
 		return BitSet.valueOf(DatatypeConverter.parseHexBinary(hexbinary));
 	}
 	
-	private BitSet leftShiftBitSet(BitSet toShift, int shiftNum)
+	private BitSet leftShiftBitSet(BitSet toShift, int shiftNum,int desiredSize)
 	{
+
 		boolean[] bitsToPreserve = new boolean[shiftNum];
 		for(int i = 0;i<shiftNum;i++)
 			bitsToPreserve[i] = toShift.get(i);
@@ -101,7 +101,7 @@ public class DES implements Encryption{
 		
 		BitSet toReturn = toShift.get(shiftNum, toShift.length());
 		for(int i = 0;i<shiftNum;i++)
-			toReturn.set(toReturn.length(),bitsToPreserve[i]);
+			toReturn.set(desiredSize - shiftNum + i,bitsToPreserve[i]);
 		
 		return toReturn;
 	}

@@ -3,7 +3,7 @@ package simpleEncyptions;
 import java.util.BitSet;
 
 public class Utils {
-	public static String bistToString(BitSet bitSet,int split)
+	public static String bistToString(BitSet bitSet,int split,int desiredLen)
 	{
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0;i<bitSet.length();i++)
@@ -14,11 +14,17 @@ public class Utils {
 				sb.append(" ");
 			}
 		}
+		if(desiredLen > bitSet.length())
+		{
+			for(int i = 0;i<desiredLen -bitSet.length();i++)
+				sb.append("0");
+		}
 		return sb.toString();
+		
 	}
 	public static void printBists(BitSet bitSet,int split)
 	{
-		System.out.println(bistToString(bitSet,split));
+		System.out.println(bistToString(bitSet,split,0));
 	}
 	
 	
