@@ -28,7 +28,9 @@ public class DESTest {
 		};
 	
 	public static final String ipMessage = "1100 1100 0000 0000 1100 1100 1111 1111 1111 0000 1010 1010 1111 0000 1010 1010";
-	
+	public static final String firstKey = "011000010001011110111010100001100110010100100111";
+	public static final String firstKeySBoxed = "0101 1100 1000 0010 1011 0101 1001 0111";
+	public static final String fFunctionResult = "0010 0011 0100 1010 1010 1001 1011 1011";
 	@Test
 	public void testCreateKey()
 	{
@@ -54,4 +56,65 @@ public class DESTest {
 		//DES des = new DES();
 		//BitSet toTest = des.encryptBlockMessage("0123456789ABCDEF");
 	}
+	
+	@Test 
+	public void testFullSboxKey()
+	{
+		DES des = new DES();
+		BitSet key = des.fromBinaryStringToBinSet(firstKey);
+		BitSet sBoxedKey = des.sBoxKey(key);
+		assertEquals(firstKeySBoxed, Utils.bistToString(sBoxedKey, 4, 32));
+	}
+	
+	@Test 
+	public void testfFunctionKey()
+	{
+		DES des = new DES();
+		BitSet key = des.fromBinaryStringToBinSet(firstKey);
+		BitSet sBoxedKey = des.fFunctionKey(key);
+		assertEquals(fFunctionResult, Utils.bistToString(sBoxedKey, 4, 32));
+	}
+	
+	@Test
+	public void testSBoxKeyPart()
+	{
+		DES des = new DES();
+		BitSet key = des.fromBinaryStringToBinSet("011011");
+		BitSet sBoxedKey = des.applySBox(key,des.s1);
+		assertEquals("0101", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("011000");
+		sBoxedKey = des.applySBox(key,des.s1);
+		assertEquals("0101", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("010001");
+		sBoxedKey = des.applySBox(key,des.s2);
+		assertEquals("1100", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("011110");
+		sBoxedKey = des.applySBox(key,des.s3);
+		assertEquals("1000", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("111010");
+		sBoxedKey = des.applySBox(key,des.s4);
+		assertEquals("0010", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("100001");
+		sBoxedKey = des.applySBox(key,des.s5);
+		assertEquals("1011", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("100110");
+		sBoxedKey = des.applySBox(key,des.s6);
+		assertEquals("0101", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("010100");
+		sBoxedKey = des.applySBox(key,des.s7);
+		assertEquals("1001", Utils.bistToString(sBoxedKey, 6, 4));
+		
+		key = des.fromBinaryStringToBinSet("100111");
+		sBoxedKey = des.applySBox(key,des.s8);
+		assertEquals("0111", Utils.bistToString(sBoxedKey, 6, 4));
+	}
+	
+	
 }

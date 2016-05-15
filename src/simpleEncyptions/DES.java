@@ -1,7 +1,9 @@
 package simpleEncyptions;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -54,10 +56,10 @@ public class DES implements Encryption{
 			15,12,8,2,4,9,1,7,5,11,3,14,10,0,6,13};
 	
 	public static final int [] s2 = {
-			14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7,
-			0,15,7,4,14,2,13,1,10,6,12,11,9,5,3,8,
-			4,1,14,8,13,6,2,11,15,12,9,7,3,10,5,0,
-			15,12,8,2,4,9,1,7,5,11,3,14,10,0,6,13};
+			15,1,8,14,6,11,3,4,9,7,2,13,12,0,5,10,
+			3,13,4,7,15,2,8,14,12,0,1,10,6,9,11,5,
+			0,14,7,11,10,4,13,1,5,8,12,6,9,3,2,15,
+			13,8,10,1,3,15,4,2,11,6,7,12,0,5,14,9};
 	
 	public static final int [] s3 = {
 			10,0,9,14,6,3,15,5,1,13,12,7,11,4,2,8,
@@ -95,6 +97,17 @@ public class DES implements Encryption{
 			7,11,4,1,9,12,14,2,0,6,10,13,15,3,5,8,
 			2,1,14,7,4,10,8,13,15,12,9,0,3,5,6,11};
 	
+	public static final int [] p = {
+			16,7,20,21,
+			29,12,28,17,
+			1,15,23,26,
+			5,18,31,10,
+			2,8,24,14,
+			32,27,3,9,
+			19,13,30,6,
+			22,11,4,25};
+	
+	
 	@Override
 	public void Encrypt() {
 		
@@ -120,9 +133,60 @@ public class DES implements Encryption{
 		BitSet k_er0 = extendBlock(r0,e_bit_selection);
 		k_er0.xor(keys[1]);
 		System.out.println(Utils.bistToString(k_er0, 6, 48));
-
+		
+		sBoxKey(k_er0);
 		return null;
 	}
+	
+	public BitSet fFunctionKey(BitSet key)
+	{
+		return this.makePermutaion(p, sBoxKey(key));
+	}
+	
+	public BitSet sBoxKey(BitSet key)
+	{
+		BitSet[] boxedKey = new BitSet[8];
+		BitSet fullkey = new BitSet();
+		int[][] sBoxes = getSBoxesArray();
+		for(int i =0;i<sBoxes.length;i++)
+		{
+			boxedKey[i] = applySBox(key.get(i*6, 6 + i*6),sBoxes[i]);
+			for(int j = 0;j<4;j++)
+				fullkey.set(i*4 + j,boxedKey[i].get(j));
+		}
+		return fullkey;
+	}
+	
+	private int[][] getSBoxesArray()
+	{
+		int [][] array = {s1,s2,s3,s4,s5,s6,s7,s8};
+		return array;
+	}
+	
+	public BitSet applySBox(BitSet bitsToEncode,int[] sBox)
+	{
+		BitSet rowNumber = new BitSet();
+		rowNumber.set(1,bitsToEncode.get(0));
+		rowNumber.set(0,bitsToEncode.get(5));
+		BitSet columnNumber = new BitSet();
+		for(int i = 0;i<4;i++)
+			columnNumber.set(i,bitsToEncode.get(4-i));
+		
+		long[] lARow = rowNumber.toLongArray();
+		long[] lACol = columnNumber.toLongArray();
+		
+		int rowNum = lARow.length>0?(int)lARow[0]:0;
+		int colNum = lACol.length>0?(int)lACol[0]:0;
+		BitSet result = Utils.bitSetFromLong(sBox[rowNum*16 + colNum]);
+		for(int i = 0;i<2;i++)
+		{
+			boolean swapBit = result.get(i);
+			result.set(i,result.get(3-i));
+			result.set(3-i,swapBit);
+		}
+		return result;
+	}
+	
 	
 	private BitSet extendBlock(BitSet toExtend,int[] extender)
 	{
@@ -174,7 +238,7 @@ public class DES implements Encryption{
 		return padBinaryString(new BigInteger(s, 16).toString(2), (int)Math.ceil((big.bitLength()/8.0))*8);
 	}
 	
-	private BitSet fromBinaryStringToBinSet(String binaryString){
+	public BitSet fromBinaryStringToBinSet(String binaryString){
 		BitSet toReturn = new BitSet();
 		for(int i = 0; i < binaryString.length(); i++)
 			toReturn.set(i,binaryString.charAt(i) == '1');
@@ -210,7 +274,6 @@ public class DES implements Encryption{
 	
 	private BitSet leftShiftBitSet(BitSet toShift, int shiftNum,int desiredSize)
 	{
-
 		boolean[] bitsToPreserve = new boolean[shiftNum];
 		for(int i = 0;i<shiftNum;i++)
 			bitsToPreserve[i] = toShift.get(i);

@@ -1,6 +1,9 @@
 package simpleEncyptions;
 
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
+import java.util.List;
 
 public class Utils {
 	public static String bistToString(BitSet bitSet,int split,int desiredLen)
@@ -27,5 +30,22 @@ public class Utils {
 		System.out.println(bistToString(bitSet,split,0));
 	}
 	
+	public static Object[] reverse(Object[] arr) {
+        List<Object> list = Arrays.asList(arr);
+        Collections.reverse(list);
+        return list.toArray();
+	}
 	
+	public static BitSet bitSetFromLong(long value) {
+	    BitSet bits = new BitSet();
+	    int index = 0;
+	    while (value != 0L) {
+	      if (value % 2L != 0) {
+	        bits.set(index);
+	      }
+	      ++index;
+	      value = value >>> 1;
+	    }
+	    return bits;
+	 }	
 }
