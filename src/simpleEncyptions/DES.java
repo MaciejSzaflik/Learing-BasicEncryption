@@ -39,6 +39,16 @@ public class DES implements Encryption{
 	    61,53,45,37,29,21,13, 5,
 	    63,55,47,39,31,23,15, 7};
 	
+	public static final int [] ipMinus1 = {
+		40,8,48,16,56,24,64,32,
+		39,7,47,15,55,23,63,31,
+		38,6,46,14,54,22,62,30,
+		37,5,45,13,53,21,61,29,
+		36,4,44,12,52,20,60,28,
+		35,3,43,11,51,19,59,27,
+		34,2,42,10,50,18,58,26,
+		33,1,41,9,49,17,57,25};
+	
 	public static final int [] e_bit_selection = {
 			32, 1, 2, 3, 4, 5,
              4, 5, 6, 7, 8, 9,
@@ -113,8 +123,6 @@ public class DES implements Encryption{
 		
 		BitSet[] keys = CreateKey("133457799BBCDFF1");
 		encryptBlockMessage("0123456789ABCDEF",keys);
-		
-	
 	}
 	
 	public BitSet ipMessageBlock(String hexString)
@@ -125,23 +133,31 @@ public class DES implements Encryption{
 	
 	public BitSet encryptBlockMessage(String block,BitSet[] keys){
 		BitSet messageBits = ipMessageBlock(block);
-		BitSet l0 = messageBits.get(0, 32);
-		BitSet r0 = messageBits.get(32, 64);
-		System.out.println("alfa");
+		BitSet[] l = new BitSet[17];
+		BitSet[] r = new BitSet[17];
+		
+		l[0] = messageBits.get(0, 32);
+		r[0] = messageBits.get(32, 64);
 		
 		
-		BitSet k_er0 = extendBlock(r0,e_bit_selection);
-		k_er0.xor(keys[1]);
-		System.out.println(Utils.bistToString(k_er0, 6, 48));
+		for(int i = 1;i<17;i++)
+		{
+			l[i] = r[i-1];
+			r[i] = l[i-1];
+			r[i].xor(fFunctionKey(r[i-1],keys[i]));
+		}
 		
-		sBoxKey(k_er0);
-		return null;
+		BitSet fullBlock = makePermutaion(ipMinus1,concatenateBitSets(r[16],l[16],32));
+		return fullBlock;
 	}
 	
-	public BitSet fFunctionKey(BitSet key)
+	public BitSet fFunctionKey(BitSet r,BitSet k)
 	{
-		return this.makePermutaion(p, sBoxKey(key));
+		BitSet k_er0 = extendBlock(r,e_bit_selection);
+		k_er0.xor(k);
+		return this.makePermutaion(p, sBoxKey(k_er0));
 	}
+	
 	
 	public BitSet sBoxKey(BitSet key)
 	{
@@ -177,12 +193,18 @@ public class DES implements Encryption{
 		
 		int rowNum = lARow.length>0?(int)lARow[0]:0;
 		int colNum = lACol.length>0?(int)lACol[0]:0;
-		BitSet result = Utils.bitSetFromLong(sBox[rowNum*16 + colNum]);
-		for(int i = 0;i<2;i++)
+		BitSet result = reverseBitSet(Utils.bitSetFromLong(sBox[rowNum*16 + colNum]),4);
+		return result;
+	}
+	
+	private BitSet reverseBitSet(BitSet toReverse,int len)
+	{
+		BitSet result = new BitSet();
+		for(int i = 0;i<len/2;i++)
 		{
-			boolean swapBit = result.get(i);
-			result.set(i,result.get(3-i));
-			result.set(3-i,swapBit);
+			boolean swapBit = toReverse.get(i);
+			result.set(i,toReverse.get(len - 1 -i));
+			result.set(len -1 -i,swapBit);
 		}
 		return result;
 	}

@@ -30,10 +30,12 @@ public class Utils {
 		System.out.println(bistToString(bitSet,split,0));
 	}
 	
-	public static Object[] reverse(Object[] arr) {
-        List<Object> list = Arrays.asList(arr);
-        Collections.reverse(list);
-        return list.toArray();
+	public static String bytesToHex(byte[] in) {
+	    final StringBuilder builder = new StringBuilder();
+	    for(byte b : in) {
+	        builder.append(String.format("%02x", b));
+	    }
+	    return builder.toString();
 	}
 	
 	public static BitSet bitSetFromLong(long value) {
